@@ -1,1 +1,57 @@
+import time
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+# Replace with your website's URL
+website_url = "https://example.com"
+
+def click_submit_button(driver):
+    submit_button = driver.find_element(By.ID, "submit_button_id")  # Replace with the actual ID of the submit button
+    submit_button.click()
+
+def binary_search_with_web_interaction(start_str, end_str):
+    driver = webdriver.Chrome()  # Use the appropriate webdriver for your browser
+    driver.get(website_url)
+    
+    while int(start_str) <= int(end_str):
+        mid_num = (int(start_str) + int(end_str)) // 2
+        mid_str = str(mid_num).zfill(6)
+        
+        # Input the number into the field on your website
+        input_field = driver.find_element(By.ID, "number_input_id")  # Replace with the actual ID of the input field
+        input_field.clear()
+        input_field.send_keys(mid_str)
+        
+        click_submit_button(driver)
+        
+        try:
+            # Wait for the response element to appear
+            element = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.ID, "response_element_id"))
+            )
+            
+            response = element.text
+            if response == "Correct":
+                print(f"Found Number: {mid_str}")
+                break
+            elif response == "Greater":
+                end_str = str(mid_num - 1).zfill(6)
+            elif response == "Less":
+                start_str = str(mid_num + 1).zfill(6)
+            else:
+                print("Invalid response received. Exiting.")
+                break
+        except:
+            print("Error or timeout occurred. Retrying...")
+            pass
+
+    driver.quit()
+
+if __name__ == "__main__":
+    start_num_str = "00000"
+    end_num_str = "999999"
+    
+    binary_search_with_web_interaction(start_num_str, end_num_str)
 
